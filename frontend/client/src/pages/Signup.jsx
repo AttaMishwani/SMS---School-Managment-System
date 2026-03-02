@@ -46,14 +46,8 @@ export default function Signup() {
         body:JSON.stringify(payload)
       });
 
-      const raw = await response.text();
-      let res = null;
-      try {
-        res = raw ? JSON.parse(raw) : null;
-      } catch {
-        res = { message: raw };
-      }
-
+      const res_data = await response.json()
+      
       if (!response.ok) {
         console.error("Signup failed", {
           status: response.status,
@@ -66,6 +60,7 @@ export default function Signup() {
       }
 
       if(response.ok){
+        console.log(res_data)
         setForm({
           schoolName: "",
           adminName: "",

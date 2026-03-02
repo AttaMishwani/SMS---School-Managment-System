@@ -27,9 +27,9 @@ export default function Login() {
         },
         body: JSON.stringify(form),
       });
-
+console.log(response)
       const res = await response.json();
-
+console.log(res)
       if (!response.ok) {
         setError(res?.message || "Login failed");
         return;
@@ -53,7 +53,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="w-full max-w-md bg-white shadow-lg rounded-xl p-8">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           School Admin Login
