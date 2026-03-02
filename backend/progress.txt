@@ -1,0 +1,3 @@
+the school status is getting updated succesfully
+
+now i have to write the logic in login file to let active users log in and dont let rejected user log in

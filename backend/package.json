@@ -1,6 +1,5 @@
-
 {
-  "name":"backend",
+  "name": "backend",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
@@ -14,7 +13,6 @@
     "dev": "nodemon src/server.js"
   },
   "type": "commonjs",
-
   "devDependencies": {
     "nodemon": "^3.1.14"
   }
