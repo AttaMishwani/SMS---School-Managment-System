@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../store/Auth";
+
 
 const URL = "http://localhost:5000/api/auth/login";
 
 export default function Login() {
+  const {storeTokenInLs} = useAuth()
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [form, setForm] = useState({
@@ -36,11 +39,15 @@ console.log(res)
       }
 
       if (res?.isSuperAdmin) {
+        console.log(res.user.token);
+        storeTokenInLs(res.user.token)
         navigate("/superadmindashboard");
         return;
       }
-
+      
       if (res?.isSchoolAdmin) {
+        console.log(res.user.token);
+        storeTokenInLs(res.user.token)
         navigate("/admindashboard");
         return;
       }
@@ -53,7 +60,7 @@ console.log(res)
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
+    <div className="min-h-screen flex items-center w-full border-2 border-red-950 justify-center bg-black">
       <div className="w-full max-w-md bg-white shadow-lg rounded-xl p-8">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           School Admin Login
