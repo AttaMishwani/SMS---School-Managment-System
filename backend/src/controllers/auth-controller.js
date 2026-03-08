@@ -40,6 +40,7 @@ const login = async (req, res) => {
           
         }
       }
+
     return res.status(200).json({
       message: "successfully logged in",
       isSuperAdmin,
@@ -49,6 +50,8 @@ const login = async (req, res) => {
         email: userExist.email,
         role: userExist.role,
         schoolId: userExist.schoolId,
+        token  : await userExist.generateToken()
+
       },
     });
   } catch (error) {
@@ -121,4 +124,10 @@ console.log("data from sign up controller",user)
 
 return  res.status(200).json({msg:"sign up controller working"})
 }
-module.exports = { login , signup };
+
+const user = async (req , res) =>{
+
+  console.log("user controller working")
+  res.status(201).json({msg:"at user controller"})
+}
+module.exports = { login , signup , user };

@@ -1,3 +1,3 @@
-the school status is getting updated succesfully
+i was doing the token work
 
-now i have to write the logic in login file to let active users log in and dont let rejected user log in
+i am working in the auth middleware for user
