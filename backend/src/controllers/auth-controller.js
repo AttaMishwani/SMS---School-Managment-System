@@ -127,7 +127,13 @@ return  res.status(200).json({msg:"sign up controller working"})
 
 const user = async (req , res) =>{
 
-  console.log("user controller working")
-  res.status(201).json({msg:"at user controller"})
+  try {
+    const userData = req.user;
+    console.log("user data from user controller", userData);
+
+    return res.status(200).json({msg:"user data sent successfully" , userData})
+  } catch (error) {
+    
+  }
 }
 module.exports = { login , signup , user };
