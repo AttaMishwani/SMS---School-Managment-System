@@ -1,14 +1,15 @@
 import { Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import SuperAdminDashboard from "./pages/SuperAdminDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import MainLayout from "./layouts/MainLayout";
-
+import {lazy , Suspense} from "react"
+const MainLayout  = lazy(()=> import("./layouts/MainLayout"));
+const AdminDashboard = lazy(()=> import("./pages/AdminDashboard"));
+const Login = lazy(()=> import("./pages/Login"));
+const Signup = lazy(()=> import("./pages/Signup"));
+const SuperAdminDashboard = lazy(()=> import("./pages/SuperAdminDashboard"))
 
 
 export default function App() {
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <Routes>
       <Route element={<MainLayout/>}>
       <Route path="/" element={<Login />} />
@@ -18,5 +19,6 @@ export default function App() {
       <Route path="/admindashboard" element={<AdminDashboard/>} />
       </Route>
     </Routes>
+    </Suspense>
   );
 }

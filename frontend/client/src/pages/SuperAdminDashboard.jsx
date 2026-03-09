@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
-import PendingSchoolsTab from "../components/superadmin/PendingSchoolsTab";
-import PendingAdminsTab from "../components/superadmin/PendingAdminsTab";
-import RemoveUsersTab from "../components/superadmin/RemoveUsersTab";
-import ReportsTab from "../components/superadmin/ReportsTab";
+import { lazy  , Suspense} from "react";
+
+const PendingSchoolsTab = lazy(() => import("../components/superadmin/PendingSchoolsTab"));
+const PendingAdminsTab = lazy(() => import("../components/superadmin/PendingAdminsTab"));
+const RemoveUsersTab = lazy(() => import("../components/superadmin/RemoveUsersTab"));
+const ReportsTab = lazy(() => import("../components/superadmin/ReportsTab"));
 
 const MENU_ITEMS = [
   { id: "pendingSchools", label: "Pending Schools" },
@@ -69,7 +71,12 @@ export default function SuperAdminDashboard() {
 
           {/* Content Panel */}
           <section className="md:col-span-8 lg:col-span-9 bg-slate-900 border border-slate-800 rounded-2xl p-6">
-            <CurrentTab />
+         <Suspense fallback={ <div className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-6 text-slate-300">
+                  Loading tab...
+                </div>}>
+
+           <CurrentTab />
+         </Suspense>
           </section>
 
         </div>

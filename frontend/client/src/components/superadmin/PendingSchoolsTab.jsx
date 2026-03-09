@@ -1,35 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery , useMutation } from "@tanstack/react-query";
+import fetchPendingSchools from "../../api/pendingSchool";
 
 const BASE = "http://localhost:5000/api/schools";
-const PENDING_SCHOOLS_URL = `${BASE}/pendingschools`;
 
 export default function PendingSchoolsTab() {
-  const [pendingSchools, setPendingSchools] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
 
-  const fetchPendingSchools = async () => {
+  const {
+    data: pendingSchools = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["pendingschools"],
+    queryFn: fetchPendingSchools,
+  });
+
+  const updateSchoolStatus = async (schoolId, status) => {
     try {
-      setLoading(true);
-      setError("");
-
-      const res = await fetch(PENDING_SCHOOLS_URL);
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data?.message || "Failed to fetch pending schools.");
-
-      setPendingSchools(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err?.message || "Error fetching pending schools.");
-      setPendingSchools([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAction = async (schoolId, status) => {
-    try {
-      setError("");
+      setActionError("");
 
       const response = await fetch(`${BASE}/${schoolId}/status`, {
         method: "PUT",
@@ -37,58 +27,67 @@ export default function PendingSchoolsTab() {
         body: JSON.stringify({ status }),
       });
 
-      const resData = await response.json();
-
       if (!response.ok) {
         throw new Error(resData?.message || "Failed to update status.");
       }
+      const resData = await response.json();
 
-      // Remove from the list immediately (since it's no longer PENDING)
-      setPendingSchools((prev) => prev.filter((s) => s._id !== schoolId));
+      refetch();
     } catch (err) {
-      setError(err?.message || "Failed to update status.");
+      setActionError(err?.message || "Failed to update status.");
     }
   };
 
-  useEffect(() => {
-    fetchPendingSchools();
-  }, []);
+  const mutation = useMutation({
+    mutationFn : updateSchoolStatus,
+    onSuccess : ()=>{
+      queryClient.invalidateQueries(["pendingschools"])
+    }
+  })
 
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
       <div className="mb-5 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-semibold text-white">Pending Schools</h2>
-          <p className="text-sm text-slate-400">Approve or suspend schools requesting access.</p>
+          <p className="text-sm text-slate-400">
+            Approve or suspend schools requesting access.
+          </p>
         </div>
 
         <button
-          onClick={fetchPendingSchools}
+          onClick={refetch}
           className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 hover:bg-slate-700"
         >
           Refresh
         </button>
       </div>
 
-      {loading && (
+      {isLoading && (
         <div className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-slate-300">
           Loading pending schools...
         </div>
       )}
 
-      {!loading && error && (
+      {!isLoading && error && (
         <div className="rounded-xl border border-rose-900/40 bg-rose-950/40 px-4 py-3 text-rose-200">
-          {error}
+          {error.message}
         </div>
       )}
 
-      {!loading && !error && pendingSchools.length === 0 && (
+      {!isLoading && actionError && (
+        <div className="rounded-xl border border-rose-900/40 bg-rose-950/40 px-4 py-3 text-rose-200">
+          {actionError}
+        </div>
+      )}
+
+      {!isLoading && !error && pendingSchools.length === 0 && (
         <div className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-slate-300">
           No pending schools found.
         </div>
       )}
 
-      {!loading && !error && pendingSchools.length > 0 && (
+      {!isLoading && !error && pendingSchools.length > 0 && (
         <div className="overflow-x-auto rounded-xl border border-slate-800">
           <table className="min-w-full text-sm">
             <thead className="bg-slate-950 text-slate-300">
@@ -132,14 +131,14 @@ export default function PendingSchoolsTab() {
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
                         <button
-                          onClick={() => handleAction(school._id, "ACTIVE")}
+                          onClick={() => updateSchoolStatus(school._id, "ACTIVE")}
                           className="rounded-lg bg-emerald-600 px-3 py-2 font-medium text-white hover:bg-emerald-700"
                         >
                           Approve
                         </button>
 
                         <button
-                          onClick={() => handleAction(school._id, "SUSPENDED")}
+                          onClick={() => updateSchoolStatus(school._id, "SUSPENDED")}
                           className="rounded-lg bg-rose-600 px-3 py-2 font-medium text-white hover:bg-rose-700"
                         >
                           Reject

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../store/Auth";
 
@@ -6,7 +6,7 @@ import { useAuth } from "../store/Auth";
 const URL = "http://localhost:5000/api/auth/login";
 
 export default function Login() {
-  const {storeTokenInLs} = useAuth()
+  const { storeTokenInLs, isLoggedIn, user, isAuthLoading } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [form, setForm] = useState({
@@ -30,24 +30,22 @@ export default function Login() {
         },
         body: JSON.stringify(form),
       });
-console.log(response)
+
       const res = await response.json();
-console.log(res)
+
       if (!response.ok) {
         setError(res?.message || "Login failed");
         return;
       }
 
       if (res?.isSuperAdmin) {
-        console.log(res.user.token);
-        storeTokenInLs(res.user.token)
+        storeTokenInLs(res.user.token);
         navigate("/superadmindashboard");
         return;
       }
       
       if (res?.isSchoolAdmin) {
-        console.log(res.user.token);
-        storeTokenInLs(res.user.token)
+        storeTokenInLs(res.user.token);
         navigate("/admindashboard");
         return;
       }
@@ -58,6 +56,19 @@ console.log(res)
       setError("Network error. Please try again.");
     }
   };
+
+  useEffect(() => {
+    if (isAuthLoading || !isLoggedIn || !user?.role) return;
+
+    if (user.role === "SUPER_ADMIN") {
+      navigate("/superadmindashboard");
+      return;
+    }
+
+    if (user.role === "SCHOOL_ADMIN") {
+      navigate("/admindashboard");
+    }
+  }, [isAuthLoading, isLoggedIn, user?.role, navigate]);
 
   return (
     <div className="min-h-screen flex items-center w-full border-2 border-red-950 justify-center bg-black">
