@@ -1,0 +1,4 @@
+2️⃣ School Admin
+create these features in school admin dashboard
+Register fees
+Create Student
