@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../store/Auth";
-const URL = "http://localhost:5000/api/adminDashboard/createnewstudent"
 
-
-
+const URL = "http://localhost:5000/api/adminDashboard/createnewstudent";
 
 export default function CreateNewStudent() {
-const {token} = useAuth();
+  const { token, user } = useAuth();
   const [newStudentForm, setNewStudentForm] = useState({
     studentName: "",
     fatherName: "",
@@ -20,54 +18,104 @@ const {token} = useAuth();
     monthlyFee: "",
     parentName: "",
     phone: "",
-    address: ""
+    address: "",
   });
+  const [errorMessage, setErrorMessage] = useState("");
 
- 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     setNewStudentForm((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
 
-    console.log("Student Form Data:", newStudentForm);
+    // Normalize values before sending to the API so they align with server-side validation.
+    const payload = {
+      studentName: newStudentForm.studentName.trim(),
+      fatherName: newStudentForm.fatherName.trim(),
+      // Send both camelCase and snake_case style keys for compatibility with the updated controller.
+      rollNumber: newStudentForm.rollNumber.trim(),
+      roll_no: newStudentForm.rollNumber.trim(),
+      dob: newStudentForm.dob,
+      gender: newStudentForm.gender,
+      admissionDate: newStudentForm.admissionDate,
+      className: newStudentForm.className,
+      class: newStudentForm.className,
+      section: newStudentForm.section,
+      monthlyFee: newStudentForm.monthlyFee ? Number(newStudentForm.monthlyFee) : "",
+      monthly_fee: newStudentForm.monthlyFee ? Number(newStudentForm.monthlyFee) : "",
+      parentName: newStudentForm.parentName.trim(),
+      parent_name: newStudentForm.parentName.trim(),
+      phone: newStudentForm.phone.trim(),
+      address: newStudentForm.address.trim(),
+      // Some deployments require schoolId in the body even though the backend now checks the authenticated user.
+      schoolId: user?.schoolId || user?.school_id,
+    };
 
-  try {
-    const response = await axios.post(URL , newStudentForm , {
-        headers:{
-            Authorization: `Bearer ${token}`,
-            "Content-Type":"application/json"
-        }
-    }) 
+    // Lightweight client-side checks to avoid avoidable 400s.
+    if (!payload.studentName || !payload.fatherName || !payload.rollNumber) {
+      setErrorMessage("Student name, father name, and roll number are required.");
+      return;
+    }
+    if (!payload.className) {
+      setErrorMessage("Class is required.");
+      return;
+    }
+    if (!payload.monthlyFee || payload.monthlyFee <= 0) {
+      setErrorMessage("Monthly fee must be greater than 0.");
+      return;
+    }
+    if (payload.phone && payload.phone.replace(/\\D/g, "").length < 10) {
+      setErrorMessage("Phone number looks too short.");
+      return;
+    }
 
-    const data = response.data;
-  setNewStudentForm({
-    studentName: "",
-    fatherName: "",
-    rollNumber: "",
-    dob: "",
-    gender: "",
-    admissionDate: "",
-    className: "",
-    section: "",
-    monthlyFee: "",
-    parentName: "",
-    phone: "",
-    address: ""
-  })
+    console.log("Student Form Data (normalized):", payload);
 
-  alert("Student Registered Successfully");
-  } catch (error) {
-    console.log(error)
-  }
+    try {
+      const response = await axios.post(URL, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
- 
+      setNewStudentForm({
+        studentName: "",
+        fatherName: "",
+        rollNumber: "",
+        dob: "",
+        gender: "",
+        admissionDate: "",
+        className: "",
+        section: "",
+        monthlyFee: "",
+        parentName: "",
+        phone: "",
+        address: "",
+      });
+
+      alert("Student Registered Successfully");
+    } catch (error) {
+      const serverMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Failed to register student. Please review the highlighted fields.";
+
+      const missingFields = error?.response?.data?.missingFields;
+      const missingNote = Array.isArray(missingFields) && missingFields.length
+        ? ` Missing: ${missingFields.join(", ")}`
+        : "";
+
+      setErrorMessage(`${serverMessage}${missingNote}`);
+      console.log("Create student error:", error?.response?.data || error);
+    }
   };
 
   return (
@@ -76,6 +124,12 @@ const {token} = useAuth();
         <h2 className="text-xl font-semibold mb-6 text-white">
           Register New Student
         </h2>
+
+        {errorMessage && (
+          <div className="mb-4 rounded-md border border-red-500/60 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {errorMessage}
+          </div>
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -140,7 +194,7 @@ const {token} = useAuth();
               name="gender"
               value={newStudentForm.gender}
               onChange={handleChange}
-              className="input"
+              className="input bg-slate-900 text-amber-50"
             >
               <option value="">Select Gender</option>
               <option>Male</option>
@@ -167,11 +221,19 @@ const {token} = useAuth();
               name="className"
               value={newStudentForm.className}
               onChange={handleChange}
-              className="input"
+              className="input bg-slate-900 text-amber-50"
             >
               <option value="">Select Class</option>
               <option>1</option>
               <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+              <option>6</option>
+              <option>7</option>
+              <option>8</option>
+              <option>9</option>
+              <option>10</option>
             </select>
           </div>
 
@@ -182,7 +244,7 @@ const {token} = useAuth();
               name="section"
               value={newStudentForm.section}
               onChange={handleChange}
-              className="input"
+              className="input bg-slate-900 text-amber-50"
             >
               <option value="">Select Section</option>
               <option>A</option>

@@ -25,7 +25,7 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1300px] mx-auto">
 
         {/* Header */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-6">

@@ -17,8 +17,8 @@ const handleLogout = () => {
     }`;
 
   return (
-    <header className="border-b bg-white w-full">
-      <div className="w-full max-w-[1200px] mx-auto px-4 py-3 flex items-center justify-between">
+    <header className="border-b bg-slate-900 w-full">
+      <div className="w-full max-w-[1300px] mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="font-bold text-slate-900">
           SMS
         </Link>
@@ -26,7 +26,7 @@ const handleLogout = () => {
         <nav className="flex items-center gap-2">
           {isLoggedIn ?   <button
     onClick={handleLogout}
-    className="px-3 py-2 rounded-lg text-sm font-medium transition text-slate-700 hover:bg-slate-100"
+    className="px-3 py-2 rounded-lg text-sm font-medium transition text-white hover:bg-slate-600"
   >
     Logout
   </button> : (<><NavLink to="/login" className={linkClass}>
